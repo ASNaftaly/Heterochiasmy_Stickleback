@@ -29,7 +29,7 @@ These analyses can be run in any order
    (Random_GO_distribution_atac.py)x10k --> Summarize_GO_permutations_atac.py --> SigGOterms_atac.py == creates random distribution to compare observed GO terms to and calcualtes significance
 
 ### Transposable Element enrichment
-   *I separated these TEs to suit my needs, so broadly across TE classes as class 1 = RNA(LINES,SINES, LTRs), class II = DNA, and RC/helitrons (I've seen these under class II TEs or even in their own class, so I treat them separately. I also examined TEs more specifically by looking at TE families under each broad class*
+   *I separated these TEs to suit my needs. I broadly examined TEs as class 1 = RNA(LINES,SINES, LTRs), class II = DNA, and RC/helitrons (I've seen these under class II TEs or even in their own class, so I examined them separately). I also examined TEs more specifically by looking at TE families under each broad class*
    
    Examining TEs separated as DNA, LINES, SINES, LTRs, RC/Helitrons
    TE_observed_counts_ATACpeaks.py == observed TE counts for 5 large TE classes
