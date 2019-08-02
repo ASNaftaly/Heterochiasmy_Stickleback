@@ -21,7 +21,7 @@ The scripts for calling peaks for ATAC-seq samples and the general pipeline for 
    Peak_tssenrichment_500bp.py == observed peaks within 500bp of TSS
    
    (Tss_expected_enrich_ATACpeaks_500bp.py)x10k == creates random distribution to compare observed peaks near TSSs to and calculate significance
-### 4. GO term
+### 4. GO term enrichment
    PullGeneIDs_atac.py (optional --> CompareIDS_atac.py == compare samples to get unique/shared gene lists) --> Pull GO terms from Biomart --> PullGOterms_atac.py --> GoTermCount_atac.py == observed GO terms
    
    (Random_GO_distribution_atac.py)x10k --> Summarize_GO_permutations_atac.py --> SigGOterms_atac.py == creates random distribution to compare observed GO terms to and calcualtes significance
