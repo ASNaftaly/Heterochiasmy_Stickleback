@@ -9,19 +9,34 @@ The scripts for calling peaks for ATAC-seq samples and the general pipeline for 
 
 
 # After calling ATAC-seq Peaks
-### 1. Getting Read Coverage per bp:
+These analyses can be run in any order
+
+### Getting Read Coverage per bp:
    GenomeCoverage.sh --> CalcChrLength.sh
    
-### 2. Splitting Peaks into 20 bins per chromosome (to determine if peaks are uniformly distributed across chromosomes or if there are any tissue specific patterns):
+### Splitting Peaks into 20 bins per chromosome (to determine if peaks are uniformly distributed across chromosomes or if there are any tissue specific patterns):
    Make20Bins_ATAC_peaks.py == observed bin values
    
    (Random_expectation_peak_distribution.py --> Make20Bins_random_atac.py)x10k --> Random_peak_dist_summary.py -->        CalculateP_randompeakdist.py == expected peak distribution which is then compared to observed bin values to calculate significance for each bin
    
-### 3. Gene Enrichment (Are peaks enriched around genes?):
+### Gene Enrichment (Are peaks enriched around genes?):
    Peak_tssenrichment_500bp.py == observed peaks within 500bp of TSS
    
    (Tss_expected_enrich_ATACpeaks_500bp.py)x10k == creates random distribution to compare observed peaks near TSSs to and calculate significance
-### 4. GO term enrichment
+### GO term enrichment
    PullGeneIDs_atac.py (optional --> CompareIDS_atac.py == compare samples to get unique/shared gene lists) --> Pull GO terms from Biomart --> PullGOterms_atac.py --> GoTermCount_atac.py == observed GO terms
    
    (Random_GO_distribution_atac.py)x10k --> Summarize_GO_permutations_atac.py --> SigGOterms_atac.py == creates random distribution to compare observed GO terms to and calcualtes significance
+
+### Transposable Element enrichment
+   *I separated these TEs to suit my needs, so broadly across TE classes as class 1 = RNA(LINES,SINES, LTRs), class II = DNA, and RC/helitrons (I've seen these under class II TEs or even in their own class, so I treat them separately. I also examined TEs more specifically by looking at TE families under each broad class*
+   
+   Examining TEs separated as DNA, LINES, SINES, LTRs, RC/Helitrons
+   TE_observed_counts_ATACpeaks.py == observed TE counts for 5 large TE classes
+   
+   (<BroadTEclass>TE_expected_counts_ATAC_peaks.py)x10k --> PullSum_TE_expect.py == randomizes peaks to determine which TE classes are significantly enriched
+   
+   Examining TEs at a family level
+   Pull_TEfamilies_at_peaks.py --> TEfamily_counts.py == counts observed peaks at each TE family
+   
+   (TEfamily_random_expectations.py --> TEfamily_counts.py)x10k --> Summarize_TEfamily_permutations.py --> CalculateP_randomTEfamily.py == ranomdizes peaks to determine which TE familes are significantly enriched
