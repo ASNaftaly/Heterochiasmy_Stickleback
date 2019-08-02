@@ -7,9 +7,8 @@ I did ATAC-seq and RNA-seq on paired samples for two different populations of th
 
 The scripts for calling peaks for ATAC-seq samples and the general pipeline for RNA-seq alignment to differential expression are in separate repositories (maybe, I might change my mind on this).
 
-# Pipeline
 
-## After calling ATAC-seq Peaks
+# After calling ATAC-seq Peaks
 ### 1. Getting Read Coverage per bp:
    GenomeCoverage.sh --> CalcChrLength.sh
    
