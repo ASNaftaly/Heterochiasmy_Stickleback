@@ -12,7 +12,10 @@ The scripts for calling peaks for ATAC-seq samples and the general pipeline for 
 These analyses can be run in any order
 
 ### Getting Read Coverage per bp:
-   GenomeCoverage.sh --> CalcChrLength.sh
+   GenomeCoverage.sh
+  
+### Creating Chromosome Length File
+   CalcChrLength.sh
    
 ### Splitting Peaks into 20 bins per chromosome (to determine if peaks are uniformly distributed across chromosomes or if there are any tissue specific patterns):
    Make20Bins_ATAC_peaks.py == observed bin values
