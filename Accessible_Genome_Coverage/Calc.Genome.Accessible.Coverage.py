@@ -62,11 +62,12 @@ def write():
         header = "Chr.Num\tChr.Size\tBp.Covered.by.ATAC.peak\tPercent.Covered.by.ATAC.peaks\n"
         out.write(header)
         for chr in chr_sizes:
-            chr_size = chr_sizes[chr]
-            single_chr_coverage = peak_coverage[chr]
-            percent_coverage = round((single_chr_coverage/chr_size)*100,2)
-            final = "%s\t%s\t%s\t%s\n" % (str(chr), str(chr_size), str(single_chr_coverage), str(percent_coverage))
-            out.write(final)
+            if chr in peak_coverage:
+                chr_size = chr_sizes[chr]
+                single_chr_coverage = peak_coverage[chr]
+                percent_coverage = round((single_chr_coverage/chr_size)*100,2)
+                final = "%s\t%s\t%s\t%s\n" % (str(chr), str(chr_size), str(single_chr_coverage), str(percent_coverage))
+                out.write(final)
 
 
 write()
