@@ -37,7 +37,7 @@ def read_chr_sizes():
             if line.startswith("chr"):
                 new_line = line.split()
                 chr_num = new_line[0]
-                chr_size = new_line[1]
+                chr_size = int(new_line[1])
                 chr_size_dict.update({chr_num:chr_size})
     return chr_size_dict
 
