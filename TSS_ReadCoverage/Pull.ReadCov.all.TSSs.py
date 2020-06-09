@@ -67,14 +67,15 @@ def pull_tss_readcov():
 #writes coverage at every tss (4kb window) for each chromosome
 def write():
     final_dict = pull_tss_readcov()
+    chr_num = sys.argv[2]
     order_keys = list(range(0,4001))
     output = sys.argv[4]
     with open(output, 'a') as out:
-        header = "Position\tRead.Coverage\n"
+        header = "Chr.Num\tPosition\tRead.Coverage\n"
         out.write(header)
         for value in order_keys:
             single_bp = final_dict[str(value)]
-            final = "%s\t%s\n" % (str(value), str(single_bp))
+            final = "%s\t%s\t%s\n" % (str(chr_num),str(value), str(single_bp))
             out.write(final)
 
 write()
