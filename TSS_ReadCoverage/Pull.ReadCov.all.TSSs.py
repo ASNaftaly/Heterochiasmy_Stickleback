@@ -23,10 +23,17 @@ def pull_TSS():
         for line in tss:
             new_line = line.split()
             chrnum = new_line[0]
+            strand = new_line[5]
             if chrnum == chr_num:
-                transcript_starts.append(int(new_line[1]))
-    final_transcript_starts = list(set(transcript_starts))
-    return final_transcript_starts
+                if strand == "+":
+                    tss = int(new_line[1])
+                    list_value = [strand, tss]
+                    transcript_starts.append(list_value)
+                elif strand == "-":
+                    tss = int(new_line[2])
+                    list_value = [strand, tss]
+                    transcript_starts.append(list_value)
+    return transcript_starts
 
 #pull read coverage from file with single chromosome
 #returns a dictionary with key = position and value = read coverage for that bp
@@ -48,34 +55,56 @@ def pull_tss_readcov():
     tss_positions = pull_TSS()
     read_coverage = pull_read_cov()
     tss_read_cov_dict = {}
-    #x = 0
     for tss in tss_positions:
-        upstream_tss = int(tss) - 2000
-        downstream_tss = int(tss) + 2000
-        for position in read_coverage:
-            if upstream_tss <= int(position) <= downstream_tss:
-                dict_value = [position, int(read_coverage[position])]
-                if tss in tss_read_cov_dict:
-                    tss_read_cov_dict[tss].append(dict_value)
-                elif tss not in tss_read_cov_dict:
-                    tss_read_cov_dict.update({tss:[dict_value]})
-            if int(position) > downstream_tss:
-                break
+        strand = tss[0]
+        tss_pos = tss[1]
+        tss_coverage = []
+        if strand == "+":
+            upstream_tss = tss_pos - 2000
+            downstream_tss = tss_pos + 2000
+            for position in read_coverage:
+                if upstream_tss <= int(position) <= downstream_tss:
+                    dict_value = [position, int(read_coverage[position])]
+                    tss_coverage.append(dict_value)
+                elif int(position) > downstream_tss:
+                    break
+            tss_read_cov_dict.update({tss_pos:tss_coverage})
+        elif strand == "-":
+            upstream_tss = tss_pos + 2000
+            downstream_tss = tss_pos - 2000
+            for position in read_coverage:
+                if downstream_tss <= int(position) <= upstream_tss:
+                    dict_value = [position, int(read_coverage[position])]
+                    tss_coverage.append(dict_value)
+                elif int(position) > upstream_tss:
+                    break
+            tss_coverage.reverse()
+            tss_read_cov_dict.update({tss_pos:tss_coverage})
     return tss_read_cov_dict
+
+#convert tss dict to be written
+def convert_dict():
+    tss_coverage = pull_tss_readcov()
+    converted_tss_coverage = []
+    for tss in tss_coverage:
+        single_tss = tss_coverage[tss]
+        x = 0
+        while x < len(single_tss):
+            single = single_tss[x]
+            new_position = [x, single[1]]
+            converted_tss_coverage.append(new_position)
+            x += 1
+    return converted_tss_coverage
 
 #write output file
 #writes coverage at every tss (4kb window) for each chromosome
 def write():
-    final_dict = pull_tss_readcov()
+    final_list = convert_dict()
     chr_num = sys.argv[2]
-    order_keys = list(range(0,4001))
     output = sys.argv[4]
     with open(output, 'a') as out:
-        header = "Chr.Num\tPosition\tRead.Coverage\n"
-        out.write(header)
-        for value in order_keys:
-            single_bp = final_dict[str(value)]
-            final = "%s\t%s\t%s\n" % (str(chr_num),str(value), str(single_bp))
+        for single_pos in final_list:
+            final = "%s\t%s\t%s\n" % (str(chr_num),str(single_pos[0]), str(single_pos[1]))
             out.write(final)
 
 write()
