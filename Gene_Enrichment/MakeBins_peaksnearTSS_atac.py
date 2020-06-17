@@ -80,7 +80,7 @@ def count_tss_arm1():
                 bin_count += 1
             else:
                 continue
-        final = [bin_start,bin_end, bin_count]
+        final = [bin_start, bin_end, bin_count]
         bin_dict.update({x:final})
         bin_start += arm1_bin_size
         bin_end += arm1_bin_size
@@ -91,25 +91,34 @@ def count_tss_arm1():
 #count tss in arm 2
 def count_tss_arm2():
     bins = create_bins()
+    centromere = pull_centromere()
+    chr_size = int(pull_chr_length())
     arm2_bin_size = bins[1]
     tss = read_tss_positions()
     bin_dict = {}
     x = 10
-    bin_start = 0
-    bin_end = arm2_bin_size
-    while x < 20:
+    bin_start = centromere
+    bin_end = arm2_bin_size + centromere
+    while x < 19:
         bin_count = 0
         for index, value in enumerate(tss):
             if bin_start <= int(value) <= bin_end:
                 bin_count += 1
             else:
                 continue
-        final = [bin_start,bin_end, bin_count]
+        final = [bin_start, bin_end, bin_count]
         bin_dict.update({x:final})
         bin_start += arm2_bin_size
         bin_end += arm2_bin_size
         bin_count = 0
         x += 1
+    for index, value in enumerate(tss):
+        if bin_start <= int(value):
+            bin_count += 1
+        else:
+            continue
+    final = [bin_start, chr_size, bin_count]
+    bin_dict.update({19:final})
     return bin_dict
 
 #writing to one output file
