@@ -3,7 +3,7 @@
 #will first pull chromosome and centromere position and figure out size of bins for each arm
 #then will pull number of peaks in each bin
 #to run script: python3 Make20Bins_ATAC_peaks.py <centromere positions file with roman numerals> <chr number as roman numeral> <peaks file> <chr num as integer> <readcov file> <output file>
-#Author: Alice Shanfelter, May 2019
+#Author: Alice Shanfelter, May 2019, edited September 2020
 
 import sys
 import time
@@ -27,7 +27,7 @@ def pull_peaks():
     peaks_list = []
     with open(peaks_file, 'r') as peaks:
         for line in peaks:
-            chr_num_full = "chr" + chr_num_roman + "\t"
+            chr_num_full = chr_num_roman + "\t"
             if line.startswith(chr_num_full):
                 new_line = line.split()
                 peak_start = new_line[1]
@@ -40,19 +40,21 @@ def pull_peaks():
 #returns integer of chromosome length
 def pull_chr_length():
     chr_length_file = sys.argv[5]
-    chr_num_int = sys.argv[4]
+    chr_num_roman = sys.argv[2]
+    chr_length = {}
     with open(chr_length_file, 'r') as readcov_file:
         for line in readcov_file:
             final_line = line.split()
-        chr_length = int(final_line[1])
-    return chr_length
+            chr_length.update({final_line[0]:final_line[1]})
+        final_chr_length = chr_length[chr_num_roman]
+    return final_chr_length
 
 #create bins for chromosome
 #arm 1 represents from the start of the chromosome to the centromere
 #arm 2 represents from the centromere to the end of the chromosome
 def create_bins():
-    chr_length = pull_chr_length()
-    centromere_pos = pull_centromere()
+    chr_length = int(pull_chr_length())
+    centromere_pos = int(pull_centromere())
     arm_2 = chr_length - centromere_pos
     arm_1 = chr_length - arm_2
     bin_size_arm1 = int(round(arm_1/10,0))
@@ -134,21 +136,22 @@ def count_peaks_arm2():
 def write():
     arm1_dict = count_peaks_arm1()
     arm2_dict = count_peaks_arm2()
+    chr_int = sys.argv[4]
     bins = ["0.05","0.1","0.15","0.2","0.25","0.3","0.35","0.4","0.45","0.5","0.55","0.6","0.65","0.7","0.75","0.8","0.85","0.9","0.95","1.0"]
     output = sys.argv[6]
     with open(output,'a') as out:
-        header = "Bin.Num\tBin.Start\tBin.End\tNumber.Peaks\n"
+        header = "Chr.Num\tBin.Num\tBin.Start\tBin.End\tNumber.Peaks\n"
         out.write(header)
         x = 0
         while x < 20:
             if x in arm1_dict:
                 single_dict_value = arm1_dict[x]
-                final = "%s\t%s\t%s\t%s\n" % (str(bins[x]), str(single_dict_value[0]),str(single_dict_value[1]),str(single_dict_value[2]))
+                final = "%s\t%s\t%s\t%s\t%s\n" % (str(chr_int),str(bins[x]), str(single_dict_value[0]),str(single_dict_value[1]),str(single_dict_value[2]))
                 out.write(final)
                 x += 1
             elif x in arm2_dict:
                 single_dict_value = arm2_dict[x]
-                final = "%s\t%s\t%s\t%s\n" % (str(bins[x]), str(single_dict_value[0]),str(single_dict_value[1]),str(single_dict_value[2]))
+                final = "%s\t%s\t%s\t%s\t%s\n" % (str(chr_int),str(bins[x]), str(single_dict_value[0]),str(single_dict_value[1]),str(single_dict_value[2]))
                 out.write(final)
                 x += 1
 
