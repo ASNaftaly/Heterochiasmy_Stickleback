@@ -1,6 +1,6 @@
 #creating what the random expectation would be if peaks were randomly distributed across the chromosomes
 #1. pull observed peak number
-#2. randomly call peaks 
+#2. randomly call peaks
 #3. sort random peaks into bins (20 per chromosome)
 #4. record number of peaks per bin
 #5. compare number of peaks per bin with observed values
@@ -43,7 +43,9 @@ def size_dict():
 	size_dict = {}
 	with open(size_file, 'r') as size:
 		for line in size:
-			if line.startswith("chr"):
+			if line == "Chr\tSize\n":
+				continue
+			else:
 				new_line = line.split()
 				chr_num = new_line[0]
 				chr_size = new_line[1]
