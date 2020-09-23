@@ -19,14 +19,11 @@ def pull_centromere():
 	centromere_dict = {}
 	with open(centromere_file, 'r') as centromeres:
 		for line in centromeres:
-			if line.startswith("Chr"):
-				continue
-			else:
-				new_line = line.split()
-				if len(new_line) > 0:
-					key = new_line[0]
-					value = new_line[1]
-					centromere_dict.update({key:value})
+			new_line = line.split()
+			if len(new_line) > 0:
+				key = new_line[0]
+				value = new_line[1]
+				centromere_dict.update({key:value})
 	return centromere_dict
 
 #pulls peaks from random distribution
@@ -58,10 +55,13 @@ def chr_length():
 	chr_size_dict = {}
 	with open(chr_size_file, 'r') as chr_sizes:
 		for line in chr_sizes:
-			new_line = line.split()
-			chr_num = new_line[0]
-			chr_size = new_line[1]
-			chr_size_dict.update({chr_num:chr_size})
+			if line == "Chr\tSize\n":
+				continue
+			else:
+				new_line = line.split()
+				chr_num = new_line[0]
+				chr_size = new_line[1]
+				chr_size_dict.update({chr_num:chr_size})
 	return chr_size_dict
 
 
@@ -75,8 +75,7 @@ def create_bins():
 	chr_arm_bins_dict = {}
 	for chr in chr_size:
 		size = chr_size[chr]
-		roman = chr.strip("chr")
-		arm_2 = int(size) - int(centromere_pos[roman])
+		arm_2 = int(size) - int(centromere_pos[chr])
 		arm_1 = int(size) - arm_2
 		bin_size_arm1 = int(round(arm_1/10,0))
 		bin_size_arm2 = int(round(arm_2/10,0))
@@ -140,8 +139,7 @@ def count_peaks_arm2():
 		arm_sizes = bins[key]
 		arm2_bin_size = arm_sizes[1]
 		single_chr_peaks = peaks[key]
-		roman = key.strip("chr")
-		centromere_pos = int(centromere_positions[roman])
+		centromere_pos = int(centromere_positions[key])
 		for val in single_chr_peaks:
 			peak_start = val[0]
 			peak_end = val[1]
