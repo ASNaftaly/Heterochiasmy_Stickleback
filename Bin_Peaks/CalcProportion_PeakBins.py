@@ -19,12 +19,12 @@ def pull_peak_bins():
     bin_dict = {}
     with open(bin_file, 'r') as bins:
         for line in bins:
-            if line.startswith("Bin.Num"):
+            if line.startswith("Chr"):
                 continue
             else:
                 new_line = line.split()
-                bin_number = new_line[0]
-                peak_counts = new_line[3]
+                bin_number = new_line[1]
+                peak_counts = new_line[4]
                 if bin_number in bin_dict:
                     bin_dict[bin_number].append(peak_counts)
                 elif bin_number not in bin_dict:
