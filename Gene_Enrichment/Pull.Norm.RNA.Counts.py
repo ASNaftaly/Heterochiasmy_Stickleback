@@ -3,7 +3,7 @@
 #output file format:
 #chr number \t Isoform ID \t TSS \t Peak start \t Peak end \t Normalized read counts
 #to be counted as expressed, normalized read counts must be greater than 10 normalized reads
-#to run script: python3 Pull.Norm.RNA.Counts.py <observed TSS file> <normalized read counts csv> <individual being examined: L1F, L2F, L1M, L2M, O1, O2, T1, T2> <isoform to gene id conversion file> <output file>
+#to run script: python3 Pull.Norm.RNA.Counts.py <observed TSS file> <normalized read counts csv> <individual being examined: L1F, L2F, L1M, L2M, O1, O2, T1, T2> <isoform to gene id conversion file> <output file with TSSs with peaks with expression> <output file with TSSs with peaks with no expression>
 #Author: Alice Naftaly, Sept 2020
 
 import sys
@@ -82,6 +82,7 @@ def pull_coverage_at_TSSs():
     normalized_counts = read_normalized_counts()
     TSSs = read_tss_with_peaks()
     peaks_with_expressed_genes = {}
+    peaks_with_no_expression = {}
     for gene in genes_to_isoforms:
         single_gene_isoforms = genes_to_isoforms[gene]
         if gene in normalized_counts:
@@ -92,19 +93,39 @@ def pull_coverage_at_TSSs():
                     if single_gene_normalized_counts > 10:
                         dict_value = [single_isoform[0], single_isoform[1], single_isoform[2], single_isoform[3], single_gene_normalized_counts]
                         peaks_with_expressed_genes.update({isoform:dict_value})
-    return peaks_with_expressed_genes
+                    elif single_gene_normalized_counts < 10:
+                        dict_value = [single_isoform[0], single_isoform[1], single_isoform[2], single_isoform[3], single_gene_normalized_counts]
+                        peaks_with_no_expression.update({isoform:dict_value})
+    return peaks_with_expressed_genes, peaks_with_no_expression
 
 #write output file
-def write():
-    tss_coverage = pull_coverage_at_TSSs()
+def write_expression():
+    expressed_coverage, no_expression_coverage = pull_coverage_at_TSSs()
     output = sys.argv[5]
     with open(output, 'a') as out:
         header = "Chr.Num\tIsoform.ID\tTSS\tPeak.Start\tPeak.End\tNormalized.Read.Counts\n"
         out.write(header)
-        for isoform in tss_coverage:
-            single_isoform = tss_coverage[isoform]
+        for isoform in expressed_coverage:
+            single_isoform = expressed_coverage[isoform]
             final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single_isoform[0], isoform, single_isoform[3], single_isoform[1], single_isoform[2], single_isoform[4])
             out.write(final)
 
 
-write()
+def write_no_expression():
+    expressed_coverage, no_expression_coverage = pull_coverage_at_TSSs()
+    output = sys.argv[6]
+    with open(output, 'a') as out:
+        header = "Chr.Num\tIsoform.ID\tTSS\tPeak.Start\tPeak.End\tNormalized.Read.Counts\n"
+        out.write(header)
+        for isoform in no_expression_coverage:
+            single_isoform = no_expression_coverage[isoform]
+            final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single_isoform[0], isoform, single_isoform[3], single_isoform[1], single_isoform[2], single_isoform[4])
+            out.write(final)
+
+
+#call all functions
+def call():
+    expressed_TSSs = write_expression()
+    no_expression = write_no_expression()
+
+call()
