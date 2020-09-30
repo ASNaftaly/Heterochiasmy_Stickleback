@@ -3,9 +3,9 @@
 #1. will need to read in random peak distribution summary file and observed peak counts for each bin
 #2. collapse bins to just be between 0-0.5 by combining as follows: [0,19], [1,18], [2,17], [3,16], [4,15], [5,14], [6,13], [7,12], [8,11], [9,10] = 10 bins total
 #3. ask how often is observed count greater than the random values to determien if peaks are enriched in that bin (can I do the opposite to determine which bins are under enriched for peaks?)
-#p value calculation = 1 - (#random values less than observed counts/10000) 
+#p value calculation = 1 - (#random values less than observed counts/10000)
 #4. write p values for each bins (10 total) *will likely need to adjust p value using some correction method due to multiple testing
-#to run script: python3 CalculateP_randompeakdist.py <random peak summary file> <observed binned file> <output file> 
+#to run script: python3 CalculateP_randompeakdist.py <random peak summary file> <observed binned file> <output file>
 #Author: Alice Naftaly, July 2019S
 
 import sys
@@ -72,7 +72,7 @@ def collapse_permutations_random():
 	collapsed_perm_dict.update({"9":combined_bins_9_12})
 	collapsed_perm_dict.update({"10":combined_bins_10_11})
 	return collapsed_perm_dict
-	
+
 #pull observed bin counts
 #need to condense chromosomes
 #returns dictionary with key = bin number and value = observed peak count for all chromosomes
@@ -86,8 +86,8 @@ def pull_observed_counts():
 			if new_line[0] == "Bin.Num":
 				continue
 			else:
-				bin_number = new_line[0]
-				bin_count = new_line[3]
+				bin_number = new_line[1]
+				bin_count = new_line[4]
 				if bin_number in observed_dict_uncollapsed:
 					observed_dict_uncollapsed[bin_number].append(bin_count)
 				elif bin_number not in observed_dict_uncollapsed:
@@ -130,7 +130,7 @@ def collapse_permutations_observed():
 
 #comparing observed values with random permutations
 #calculates p value for each bin (10 total)
-#returns dictionary with key = bin number (1-10) and value = pvalue 
+#returns dictionary with key = bin number (1-10) and value = pvalue
 def compare():
 	permutations = collapse_permutations_random()
 	observed = collapse_permutations_observed()
@@ -163,4 +163,4 @@ def write():
 			out.write(final)
 			x += 1
 
-write()					
+write()
