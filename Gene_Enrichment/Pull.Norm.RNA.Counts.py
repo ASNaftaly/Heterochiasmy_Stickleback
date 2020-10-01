@@ -25,7 +25,10 @@ def read_tss_with_peaks():
                 start_site = int(new_line[3])
                 isoform_id = new_line[4]
                 dict_value = [chr_num, peak_start, peak_end, start_site]
-                peaks_at_tss.update({isoform_id:dict_value})
+                if isoform_id in peaks_at_tss:
+                    peaks_at_tss[isoform_id].append(dict_value)
+                elif isoform_id not in peaks_at_tss:
+                    peaks_at_tss.update({isoform_id:[dict_value]})
     return peaks_at_tss
 
 
@@ -67,10 +70,7 @@ def read_conversion():
                 new_line = line.split()
                 isoform_id = new_line[0]
                 gene_id = new_line[1]
-                if gene_id in genes_to_isoforms:
-                    genes_to_isoforms[gene_id].append(isoform_id)
-                elif gene_id not in genes_to_isoforms:
-                    genes_to_isoforms.update({gene_id:[isoform_id]})
+                genes_to_isoforms.update({isoform_id:gene_id})
     return genes_to_isoforms
 
 #pull normalized reads at TSSs with peaks
@@ -83,19 +83,41 @@ def pull_coverage_at_TSSs():
     TSSs = read_tss_with_peaks()
     peaks_with_expressed_genes = {}
     peaks_with_no_expression = {}
-    for gene in genes_to_isoforms:
-        single_gene_isoforms = genes_to_isoforms[gene]
-        if gene in normalized_counts:
-            single_gene_normalized_counts = round(float(normalized_counts[gene]),2)
-            for isoform in single_gene_isoforms:
-                if isoform in TSSs:
-                    single_isoform = TSSs[isoform]
-                    if single_gene_normalized_counts > 10:
-                        dict_value = [single_isoform[0], single_isoform[1], single_isoform[2], single_isoform[3], single_gene_normalized_counts]
-                        peaks_with_expressed_genes.update({isoform:dict_value})
-                    elif single_gene_normalized_counts < 10:
-                        dict_value = [single_isoform[0], single_isoform[1], single_isoform[2], single_isoform[3], single_gene_normalized_counts]
-                        peaks_with_no_expression.update({isoform:dict_value})
+    for isoform in TSSs:
+        single_gene = genes_to_isoforms[isoform]
+        if single_gene in normalized_counts:
+            single_gene_normalized_counts = round(float(normalized_counts[single_gene]),2)
+        elif single_gene not in normalized_counts:
+            single_gene_normalized_counts = 0
+        single_isoform = TSSs[isoform]
+        if len(single_isoform) == 1:
+            single = single_isoform[0]
+            if single_gene_normalized_counts >= 10:
+                dict_value = [single[0], single[1], single[2], single[3], single_gene_normalized_counts]
+                if isoform in peaks_with_expressed_genes:
+                    peaks_with_expressed_genes[isoform].append(dict_value)
+                elif isoform not in peaks_with_expressed_genes:
+                    peaks_with_expressed_genes.update({isoform:[dict_value]})
+            elif single_gene_normalized_counts < 10:
+                dict_value = [single[0], single[1], single[2], single[3], single_gene_normalized_counts]
+                if isoform in peaks_with_no_expression:
+                    peaks_with_no_expression[isoform].append(dict_value)
+                elif isoform not in peaks_with_no_expression:
+                    peaks_with_no_expression.update({isoform:[dict_value]})
+        elif len(single_isoform) > 1:
+            for single in single_isoform:
+                if single_gene_normalized_counts >= 10:
+                    dict_value = [single[0], single[1], single[2], single[3], single_gene_normalized_counts]
+                    if isoform in peaks_with_expressed_genes:
+                        peaks_with_expressed_genes[isoform].append(dict_value)
+                    elif isoform not in peaks_with_expressed_genes:
+                        peaks_with_expressed_genes.update({isoform:[dict_value]})
+                elif single_gene_normalized_counts < 10:
+                    dict_value = [single[0], single[1], single[2], single[3], single_gene_normalized_counts]
+                    if isoform in peaks_with_no_expression:
+                        peaks_with_no_expression[isoform].append(dict_value)
+                    elif isoform not in peaks_with_no_expression:
+                        peaks_with_no_expression.update({isoform:[dict_value]})
     return peaks_with_expressed_genes, peaks_with_no_expression
 
 #write output file
@@ -107,8 +129,14 @@ def write_expression():
         out.write(header)
         for isoform in expressed_coverage:
             single_isoform = expressed_coverage[isoform]
-            final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single_isoform[0], isoform, single_isoform[3], single_isoform[1], single_isoform[2], single_isoform[4])
-            out.write(final)
+            if len(single_isoform) == 1:
+                single = single_isoform[0]
+                final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single[0], isoform, single[3], single[1], single[2], single[4])
+                out.write(final)
+            elif len(single_isoform) > 1:
+                for single in single_isoform:
+                    final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single[0], isoform, single[3], single[1], single[2], single[4])
+                    out.write(final)
 
 
 def write_no_expression():
@@ -119,8 +147,14 @@ def write_no_expression():
         out.write(header)
         for isoform in no_expression_coverage:
             single_isoform = no_expression_coverage[isoform]
-            final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single_isoform[0], isoform, single_isoform[3], single_isoform[1], single_isoform[2], single_isoform[4])
-            out.write(final)
+            if len(single_isoform) == 1:
+                single = single_isoform[0]
+                final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single[0], isoform, single[3], single[1], single[2], single[4])
+                out.write(final)
+            elif len(single_isoform) > 1:
+                for single in single_isoform:
+                    final = "%s\t%s\t%s\t%s\t%s\t%s\n" % (single[0], isoform, single[3], single[1], single[2], single[4])
+                    out.write(final)
 
 
 #call all functions
