@@ -3,7 +3,7 @@
 #2. split chromosome into bins
 #3. count the number of peaks near TSS in each bin
 #4. write output to file
-#to run script: z
+#to run script: python3 MakeBins_peaksnearTSS_atac.py <peaks at TSSs file> <chr num> <centromere positions file> <Chr length file> <output file>
 #Author: Alice Naftaly, August 2019, edited June 2020
 
 import sys
