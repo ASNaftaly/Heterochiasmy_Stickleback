@@ -1,14 +1,3 @@
-#PBS -S /bin/bash
-#PBS -q batch
-#PBS -N sortsam_V5
-#PBS -l nodes=1:ppn=1
-#PBS -l mem=15gb
-#PBS -l walltime=24:00:00
-#PBS -M alice.shanfelter@uga.edu
-#PBS -m abe
-
-cd /scratch/afs16076/Paired_ATAC_RNA/ATAC_seq/Hotspot_comparisons/
-
 ml SAMtools/1.9-foss-2016b
 
 #samtools view -bS LW_hotspots_V5_positions.sam > LW_hotspots_V5_positions.bam
