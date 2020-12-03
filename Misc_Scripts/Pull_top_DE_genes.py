@@ -3,7 +3,8 @@
 #got adjusted p values and log2fold changes from DESeq2 in R
 #testis upregulated genes will have a negative log2fold change as these changes are in terms of ovary expression
 #normalized counts and adjusted pvalues are in csv files
-#to run script: python3 Pull_top_DE_genes.py <normalized read counts csv> <padj values in csv>
+#to run script: python3 Pull_top_DE_genes.py <normalized read counts csv> <padj values in csv> <output file>
+#Author: Alice Naftaly, Dec 2020
 
 import sys
 
@@ -52,14 +53,34 @@ def read_padj_values():
 
 
 #sorting padj dict to include the top genes with padj < 10e-6 and have negative log2_fold (meaning greater expression in the testis)
+#returns dictionary with key == gene and value == [log2fold value, padj]
 def sort_padj():
     padj_dict = read_padj_values()
     significant_padj = {}
     for gene in padj_dict:
         single_gene = padj_dict[gene]
+        #selects for genes with adjusted pvalue below threshold
         if single_gene[1] < 10e-6:
+            #selects genes that have negative log2fold values
             if single_gene[0] < 0:
-                print(single_gene)
+                significant_padj.update({gene:single_gene})
+    return significant_padj
 
+#write output
+def write():
+    sorted_padj = sort_padj()
+    normalized_reads = read_normalized_counts()
+    output = sys.argv[3]
+    with open(output, 'a') as out:
+        header = "Gene\tPadj\tAve.Ovary.Norm.Read.Count\tAve.Testis.Norm.Read.Count\n"
+        out.write(header)
+        for gene in sorted_padj:
+            single_padj_gene = sorted_padj[gene]
+            adjust_pvalue = single_padj_gene[1]
+            normalized_read_counts = normalized_reads[gene]
+            ovary_norm = normalized_read_counts[0]
+            testis_norm = normalized_read_counts[1]
+            final = "%s\t%s\t%s\t%s\n" % (str(gene), str(adjust_pvalue), str(ovary_norm), str(testis_norm))
+            out.write(final)
 
-sort_padj()
+write()
